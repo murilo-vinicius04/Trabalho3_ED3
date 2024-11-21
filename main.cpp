@@ -86,6 +86,32 @@ int main()
             std::cout << "Quantidade de ciclos: " << num_ciclos << "\n";
             break;
         }
+        case 14:
+        {
+            grafo = Grafo(arquivo); // Constrói o grafo a partir do arquivo
+
+            int num_pares;
+            std::cin >> num_pares;
+
+            for (int i = 0; i < num_pares; i++) {
+                std::string especie_origem, especie_destino;
+
+                // Ler as espécies entre aspas
+                std::getline(std::cin, especie_origem, '"'); // Descarta até a primeira aspas
+                std::getline(std::cin, especie_origem, '"');
+                std::getline(std::cin, especie_destino, '"'); // Descarta até a próxima aspas
+                std::getline(std::cin, especie_destino, '"');
+
+                auto resultado = grafo.menor_caminho(especie_origem, especie_destino);
+
+                if (resultado.second != -1) {
+                    std::cout << especie_origem << " " << especie_destino << ": " << resultado.second << "\n";
+                } else {
+                    std::cout << especie_origem << " " << especie_destino << ": CAMINHO INEXISTENTE\n";
+                }
+            }
+            break;
+        }
     }
 
     // fecha o arquivo

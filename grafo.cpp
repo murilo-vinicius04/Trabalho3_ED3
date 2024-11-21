@@ -1,6 +1,8 @@
 // Pedro Fuziwara Filho - 13676840
 
 #include "grafo.hpp"
+#include <queue>
+#include <climits>
 
 Aresta::Aresta(Registro origem)
 {
@@ -360,5 +362,63 @@ int Grafo::conta_ciclos_simples()
 int Grafo::obter_indice_vertice(const std::string& nome)
 {
     for (size_t i = 0; i < _adjacencias.size(); ++i)
+
     {        if (_adjacencias[i].nome() == nome)            return i;    }    return -1; // Caso não encontrado
+}
+
+std::pair<std::vector<std::string>, int> Grafo::menor_caminho(const std::string& origem_nome, const std::string& destino_nome)
+{
+    int origem = obter_indice_vertice(origem_nome);
+    int destino = obter_indice_vertice(destino_nome);
+
+    if (origem == -1 || destino == -1) {
+        std::cout << "Espécie não encontrada no grafo.\n";
+        return { {}, -1 };
+    }
+
+    std::vector<int> dist(_adjacencias.size(), INT_MAX);
+    std::vector<int> prev(_adjacencias.size(), -1);
+    dist[origem] = 0;
+
+    using pii = std::pair<int, int>; // (distância, índice do vértice)
+    std::priority_queue<pii, std::vector<pii>, std::greater<pii>> pq;
+    pq.push({0, origem});
+
+    while (!pq.empty()) {
+        int u = pq.top().second;
+        int d = pq.top().first;
+        pq.pop();
+
+        if (u == destino) break; // Otimização: pare se alcançar o destino
+
+        if (d > dist[u]) continue; // Já encontramos um caminho melhor
+
+        for (const auto& aresta : _adjacencias[u].arestas()) {
+            int v = obter_indice_vertice(aresta.nome());
+            if (v == -1) continue; // Vértice não encontrado
+
+            int peso = aresta.peso(); // População do predador
+            if (peso == -1) continue; // Ignorar arestas inválidas
+
+            if (dist[u] + peso < dist[v]) {
+                dist[v] = dist[u] + peso;
+                prev[v] = u;
+                pq.push({dist[v], v});
+            }
+        }
+    }
+
+    if (dist[destino] == INT_MAX) {
+        std::cout << "Não há caminho entre as espécies.\n";
+        return { {}, -1 };
+    }
+
+    // Reconstruir o caminho
+    std::vector<std::string> caminho;
+    for (int at = destino; at != -1; at = prev[at]) {
+        caminho.push_back(_adjacencias[at].nome());
+    }
+    std::reverse(caminho.begin(), caminho.end());
+
+    return { caminho, dist[destino] };
 }

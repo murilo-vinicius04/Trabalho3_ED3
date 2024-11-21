@@ -24,8 +24,8 @@ public:
     // operadores
     Aresta& operator=(const Aresta& aresta);
     // metodos para acessar parametros
-    std::string nome(){return _nome;}
-    int peso(){return _peso;}
+    std::string nome() const { return _nome; } // Marked as const
+    int peso() const { return _peso; } // Marked as const
     void printa();
 }; 
 
@@ -97,6 +97,7 @@ public:
     void printa_cacadores(std::string presa);
     int conta_ciclos_simples();
     int obter_indice_vertice(const std::string& nome);
+    std::pair<std::vector<std::string>, int> menor_caminho(const std::string& origem_nome, const std::string& destino_nome);
 };
 
 #endif
