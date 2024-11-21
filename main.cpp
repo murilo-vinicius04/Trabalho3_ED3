@@ -106,10 +106,15 @@ int main()
                 std::string especie_origem, especie_destino;
 
                 // Ler as espécies entre aspas
+                std::cin.ignore(); // Ignora o espaço antes da primeira aspas
                 std::getline(std::cin, especie_origem, '"'); // Descarta até a primeira aspas
                 std::getline(std::cin, especie_origem, '"');
+                std::cin.ignore(); // Ignora o espaço antes da segunda aspas
                 std::getline(std::cin, especie_destino, '"'); // Descarta até a próxima aspas
                 std::getline(std::cin, especie_destino, '"');
+
+                // Debug messages
+                std::cout << "Buscando caminho entre: " << especie_origem << " e " << especie_destino << std::endl;
 
                 auto resultado = grafo.menor_caminho(especie_origem, especie_destino);
 

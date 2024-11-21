@@ -415,13 +415,14 @@ int Grafo::conta_ciclos_simples()
     return contador;
 }
 
-int Grafo::obter_indice_vertice(const std::string& nome)
+int Grafo::obter_indice_vertice(const std::string& nome_completo)
 {
-    auto it = nome_para_indice.find(nome);
-    if (it != nome_para_indice.end())
-        return it->second;
-    else
-        return -1; // Caso não encontrado
+    for (size_t i = 0; i < _adjacencias.size(); ++i)
+    {
+        if (_adjacencias[i].nome() == nome_completo || _adjacencias[i].especie() == nome_completo)
+            return i;
+    }
+    return -1; // Caso não encontrado
 }
 
 std::pair<std::vector<std::string>, int> Grafo::menor_caminho(const std::string& origem_nome, const std::string& destino_nome)
@@ -430,7 +431,7 @@ std::pair<std::vector<std::string>, int> Grafo::menor_caminho(const std::string&
     int destino = obter_indice_vertice(destino_nome);
 
     if (origem == -1 || destino == -1) {
-        std::cout << "Espécie não encontrada no grafo.\n";
+        std::cout << "Espécie não encontrada no grafo: " << (origem == -1 ? origem_nome : destino_nome) << std::endl; // Debug message
         return { {}, -1 };
     }
 

@@ -4,6 +4,7 @@
     ".prettierrc": "json",
     "*.css": "css",
     ".dev.vars": "dotenv",
-    "algorithm": "cpp"
+    "algorithm": "cpp",
+    "ostream": "cpp"
   }
 }
