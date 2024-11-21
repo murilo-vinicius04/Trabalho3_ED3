@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 #include <list>
+#include <stack> // Added to ensure stack is included
+#include <unordered_map> // Add this include
 
 class Aresta
 {
@@ -21,6 +23,7 @@ public:
     {aresta._peso = 0;}
     Aresta(const Aresta& aresta) : _peso(aresta._peso), _nome(aresta._nome) {}
     Aresta() : _peso(0), _nome(""){}
+    Aresta(std::string nome, int peso); // Novo construtor
     // operadores
     Aresta& operator=(const Aresta& aresta);
     // metodos para acessar parametros
@@ -50,6 +53,9 @@ public:
     Vertice(Registro registro);
     Vertice(Vertice&& vertice) noexcept;
     Vertice(const Vertice& vertice);
+    Vertice(const std::string& nome)
+        : _nome(nome), _especie(""), _dieta(""), _tipo(""), _habitat(""),
+          _grau_entrada(0), _grau_saida(0), _grau(0) {}
     // operadores
     Vertice& operator=(const Vertice& vertice);
     // metodos para acessar parametros
@@ -71,11 +77,14 @@ public:
     void printa_vertice();
     void ordena_arestas();
     bool caca(std::string presa);
+    void limpa_arestas();                       // Novo método
+    void adiciona_aresta(const Aresta& aresta); // Novo método
 };
 
 class Grafo
 {
     std::vector<Vertice> _adjacencias;
+    std::unordered_map<std::string, int> nome_para_indice; // Mapeamento de nomes para índices
 public:
     // construtores
     Grafo() : _adjacencias(){}
@@ -98,6 +107,11 @@ public:
     int conta_ciclos_simples();
     int obter_indice_vertice(const std::string& nome);
     std::pair<std::vector<std::string>, int> menor_caminho(const std::string& origem_nome, const std::string& destino_nome);
+    int conta_componentes_fortemente_conexos(); // Nova funcionalidade
+private:
+    void DFS(int v, std::vector<bool>& visitado, std::stack<int>& pilha); // Novo método
+    void DFSUtil(int v, std::vector<bool>& visitado);                     // Novo método
+    Grafo obter_transposto();                                             // Novo método
 };
 
 #endif

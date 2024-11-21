@@ -33,7 +33,7 @@ int main()
         case 10:
         {
             grafo = Grafo(arquivo);
-            grafo.printa_grafo();
+            grafo.printa_grafo(); // Certifique-se de que este método não está sendo chamado no case 13
             break;
         }
         case 11:
@@ -84,6 +84,15 @@ int main()
             // chama o método para contar ciclos simples
             int num_ciclos = grafo.conta_ciclos_simples();
             std::cout << "Quantidade de ciclos: " << num_ciclos << "\n";
+            break;
+        }
+        case 13:
+        {
+            grafo = Grafo(arquivo);
+
+            // Verifica se o grafo é fortemente conexo e conta o número de CFCs
+            grafo.conta_componentes_fortemente_conexos();
+
             break;
         }
         case 14:
