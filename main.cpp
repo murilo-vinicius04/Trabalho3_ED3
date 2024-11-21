@@ -1,3 +1,5 @@
+// Pedro Fuziwara Filho - 13676840
+
 #include "registro.hpp"
 #include "grafo.hpp"
 
@@ -17,37 +19,73 @@ int main()
         return 1;
     }
 
+    // inicializa variáveis antes do switch
+    std::vector<Registro> registros;
+    Grafo grafo;
+
+    // declara variáveis fora do switch
+    std::streampos posicao;
+    int tamanho;
+
     // executa funcionalidade desejada
     switch (n)
     {
-    case 10:
-        // lemos registros e ordenamos a partir do nome
-        std::streampos posicao = arquivo.tellg();
-        arquivo.seekg(0, std::ios::end);
-        int tamanho = arquivo.tellg();
-        arquivo.seekg(posicao, std::ios::beg);
-        std::vector<Registro> registros;
-        for (int offset = 1600, i = 0; offset < tamanho; offset += 160, i++)
+        case 10:
         {
-            registros.push_back(Registro(arquivo, offset));
+            grafo = Grafo(arquivo);
+            grafo.printa_grafo();
+            break;
         }
-        // criamos um grafo com os registros ordenados, no momento ele so possui os vertice
-        // sem nenhuma aresta
-        Grafo grafo(registros);
-        // vamos inserir as arestas
-        for (int origem = 0; origem < grafo.tamanho(); origem++)
+        case 11:
         {
-            // para cada alimento, precisamos buscar registro para conseguir sua populacao
-            for (int destino = 0; destino < grafo.tamanho(); destino++)
-                if (registros[origem].alimento() == registros[destino].nome())
-                {
-                    grafo.insere_aresta(registros, origem, destino);
-                    break;
+            grafo = Grafo(arquivo);
+            int numero_presas;
+            std::cin >> numero_presas;
+            for (int i = 0; i < numero_presas; i++)
+            {
+                std::string presa;
+                std::getline(std::cin, presa, '"'); // descarta o primeiro ' "' de todo string
+                std::getline(std::cin, presa, '"');
+                grafo.printa_cacadores(presa);
+                std::cout << std::endl;
+            }
+            break;
+        }
+        case 12:
+        {
+            // lê registros e constrói o grafo
+            posicao = arquivo.tellg();
+            arquivo.seekg(0, std::ios::end);
+            tamanho = arquivo.tellg();
+            arquivo.seekg(posicao, std::ios::beg);
+            for (int offset = 1600; offset < tamanho; offset += 160)
+            {
+                Registro reg(arquivo, offset);
+                if (reg.is_valido()) { // Adicionado verificação
+                    registros.push_back(reg);
+                } else {
+                    // Opcional: Log de registros inválidos
+                    std::cerr << "Registro inválido no offset " << offset << std::endl;
                 }
+            }
+            grafo = Grafo(registros);
+            // Remove the redundant edge insertion loop
+            /*
+            for (int origem = 0; origem < grafo.tamanho(); origem++)
+            {
+                for (int destino = 0; destino < grafo.tamanho(); destino++)
+                    if (registros[origem].alimento() == registros[destino].nome())
+                    {
+                        grafo.insere_aresta(Aresta(registros[destino]), origem, destino);
+                        break;
+                    }
+            }
+            */
+            // chama o método para contar ciclos simples
+            int num_ciclos = grafo.conta_ciclos_simples();
+            std::cout << "Quantidade de ciclos: " << num_ciclos << "\n";
+            break;
         }
-
-        grafo.printa_grafo();
-        break;
     }
 
     // fecha o arquivo

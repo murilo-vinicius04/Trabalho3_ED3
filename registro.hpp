@@ -1,9 +1,12 @@
+// Pedro Fuziwara Filho - 13676840
+
 #ifndef REGISTRO
 #define REGISTRO
 
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <algorithm>
 
 class Registro 
 {
@@ -19,6 +22,7 @@ class Registro
     std::string _alimento;   // campo 9
     char _removido;          // campo 10
     int _encadenamento;      // campo 11
+    bool _valido;            // Novo campo para indicar se o registro é válido
 public:
     Registro(std::ifstream& arquivo, int offset);
     std::string nome(){return _nome;}
@@ -28,6 +32,8 @@ public:
     std::string habitat(){return _habitat;}
     std::string alimento(){return _alimento;}
     int populacao(){return _populacao;}
+    bool is_valido() const { return _valido; } // Método para acessar o status
+    void printa_formatado();
 };
 
 #endif
