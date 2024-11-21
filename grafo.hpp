@@ -8,8 +8,6 @@
 #include <vector>
 #include <string>
 #include <list>
-#include <stack> // Added to ensure stack is included
-#include <unordered_map> // Add this include
 
 class Aresta
 {
@@ -18,7 +16,7 @@ class Aresta
 public:
     // construtores
     Aresta(Registro origem);
-    Aresta(Aresta&& aresta) noexcept 
+    Aresta(Aresta&& aresta) 
         : _peso(aresta._peso), _nome(std::move(aresta._nome))
     {aresta._peso = 0;}
     Aresta(const Aresta& aresta) : _peso(aresta._peso), _nome(aresta._nome) {}
@@ -51,7 +49,7 @@ public:
     Vertice() : _nome(""), _especie(""), _dieta(""), _tipo(""), _habitat(""),
         _grau_entrada(0), _grau_saida(0), _grau(0) {}
     Vertice(Registro registro);
-    Vertice(Vertice&& vertice) noexcept;
+    Vertice(Vertice&& vertice);
     Vertice(const Vertice& vertice);
     Vertice(const std::string& nome)
         : _nome(nome), _especie(""), _dieta(""), _tipo(""), _habitat(""),
@@ -84,14 +82,13 @@ public:
 class Grafo
 {
     std::vector<Vertice> _adjacencias;
-    std::unordered_map<std::string, int> nome_para_indice; // Mapeamento de nomes para índices
 public:
     // construtores
     Grafo() : _adjacencias(){}
     Grafo(const Grafo& grafo) : _adjacencias(grafo._adjacencias){}
     Grafo(Grafo&& grafo) noexcept : _adjacencias(std::move(grafo._adjacencias)){}
     Grafo(std::ifstream& arquivo);
-    Grafo(std::vector<Registro> registros);
+    // Grafo(std::vector<Registro> registros); // Commented out
     Grafo& operator=(const Grafo& grafo);
     // acessa parametros do grafo
     Vertice vertice(long unsigned int posicao){return _adjacencias[posicao];};
@@ -109,9 +106,9 @@ public:
     std::pair<std::vector<std::string>, int> menor_caminho(const std::string& origem_nome, const std::string& destino_nome);
     int conta_componentes_fortemente_conexos(); // Nova funcionalidade
 private:
-    void DFS(int v, std::vector<bool>& visitado, std::stack<int>& pilha); // Novo método
-    void DFSUtil(int v, std::vector<bool>& visitado);                     // Novo método
-    Grafo obter_transposto();                                             // Novo método
+    void DFS(int v, std::vector<bool>& visitado, std::vector<int>& pilha); // Updated method signature
+    void DFSUtil(int v, std::vector<bool>& visitado);                      // Unchanged
+    Grafo obter_transposto();                                             // Unchanged
 };
 
 #endif

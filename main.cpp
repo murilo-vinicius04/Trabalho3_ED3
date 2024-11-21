@@ -32,13 +32,13 @@ int main()
     {
         case 10:
         {
-            grafo = Grafo(arquivo);
+            grafo = Grafo(arquivo); // Uses Grafo(std::ifstream& arquivo)
             grafo.printa_grafo(); // Certifique-se de que este método não está sendo chamado no case 13
             break;
         }
         case 11:
         {
-            grafo = Grafo(arquivo);
+            grafo = Grafo(arquivo); // Uses Grafo(std::ifstream& arquivo)
             int numero_presas;
             std::cin >> numero_presas;
             for (int i = 0; i < numero_presas; i++)
@@ -54,33 +54,7 @@ int main()
         case 12:
         {
             // lê registros e constrói o grafo
-            posicao = arquivo.tellg();
-            arquivo.seekg(0, std::ios::end);
-            tamanho = arquivo.tellg();
-            arquivo.seekg(posicao, std::ios::beg);
-            for (int offset = 1600; offset < tamanho; offset += 160)
-            {
-                Registro reg(arquivo, offset);
-                if (reg.is_valido()) { // Adicionado verificação
-                    registros.push_back(reg);
-                } else {
-                    // Opcional: Log de registros inválidos
-                    std::cerr << "Registro inválido no offset " << offset << std::endl;
-                }
-            }
-            grafo = Grafo(registros);
-            // Remove the redundant edge insertion loop
-            /*
-            for (int origem = 0; origem < grafo.tamanho(); origem++)
-            {
-                for (int destino = 0; destino < grafo.tamanho(); destino++)
-                    if (registros[origem].alimento() == registros[destino].nome())
-                    {
-                        grafo.insere_aresta(Aresta(registros[destino]), origem, destino);
-                        break;
-                    }
-            }
-            */
+            grafo = Grafo(arquivo); // Uses Grafo(std::ifstream& arquivo)
             // chama o método para contar ciclos simples
             int num_ciclos = grafo.conta_ciclos_simples();
             std::cout << "Quantidade de ciclos: " << num_ciclos << "\n";
@@ -88,7 +62,7 @@ int main()
         }
         case 13:
         {
-            grafo = Grafo(arquivo);
+            grafo = Grafo(arquivo); // Uses Grafo(std::ifstream& arquivo)
 
             // Verifica se o grafo é fortemente conexo e conta o número de CFCs
             grafo.conta_componentes_fortemente_conexos();
@@ -97,7 +71,7 @@ int main()
         }
         case 14:
         {
-            grafo = Grafo(arquivo); // Constrói o grafo a partir do arquivo
+            grafo = Grafo(arquivo); // Uses Grafo(std::ifstream& arquivo)
 
             int num_pares;
             std::cin >> num_pares;
@@ -112,9 +86,6 @@ int main()
                 std::cin.ignore(); // Ignora o espaço antes da segunda aspas
                 std::getline(std::cin, especie_destino, '"'); // Descarta até a próxima aspas
                 std::getline(std::cin, especie_destino, '"');
-
-                // Debug messages
-                std::cout << "Buscando caminho entre: " << especie_origem << " e " << especie_destino << std::endl;
 
                 auto resultado = grafo.menor_caminho(especie_origem, especie_destino);
 

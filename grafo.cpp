@@ -1,9 +1,7 @@
 // Pedro Fuziwara Filho - 13676840
 
 #include "grafo.hpp"
-#include <queue>
 #include <climits>
-#include <stack>
 
 Aresta::Aresta(Registro origem)
 {
@@ -42,7 +40,7 @@ Vertice::Vertice(Registro especie)
     _grau = 0;
 }
 
-Vertice::Vertice(Vertice&& vertice) noexcept
+Vertice::Vertice(Vertice&& vertice)
     : _nome(std::move(vertice._nome)), _especie(std::move(vertice._especie)),
     _dieta(std::move(vertice._dieta)), _tipo(std::move(vertice._tipo)),
     _habitat(std::move(vertice._habitat)), _grau_entrada(vertice._grau_entrada),
@@ -130,7 +128,7 @@ void Vertice::adiciona_aresta(const Aresta& aresta)
 
 Grafo::Grafo(std::ifstream& arquivo)
 {
-    // Leitura e criação dos registros
+    // lemos registros e ordenamos a partir do nome
     arquivo.seekg(0, std::ios::end);
     int tamanho = arquivo.tellg();
     std::vector<Registro> registros;
@@ -140,12 +138,13 @@ Grafo::Grafo(std::ifstream& arquivo)
         registros.push_back(registro);
     }
 
-    // Ordenação dos registros
-    std::sort(registros.begin(), registros.end(), [](const Registro& a, const Registro& b){
-        return a.nome() < b.nome();
-    });
+    // precisamos deixar em ordem alfabetica
+    struct
+    {
+        bool operator()(Registro a, Registro b){return a.nome() < b.nome();}
+    } compara_nome;    
+    std::sort(registros.begin(), registros.end(), compara_nome);
 
-    // Criação dos vértices únicos a partir dos registros
     for (const auto& registro : registros)
     {
         if (_adjacencias.empty() || _adjacencias.back().nome() != registro.nome())
@@ -154,41 +153,25 @@ Grafo::Grafo(std::ifstream& arquivo)
         }
     }
 
-    // Inicialização do mapeamento antes de inserir as arestas
-    for (size_t i = 0; i < _adjacencias.size(); ++i)
-    {
-        nome_para_indice[_adjacencias[i].nome()] = i;
-    }
-
-    // Adicionar vértices para todas as espécies mencionadas como alimento, incluindo "sunlight"
     for (const auto& registro : registros)
     {
         Aresta aresta(registro);
-        if (aresta.peso() != -1) // Removido o teste aresta.nome() != "sunlight"
+        if (aresta.peso() != -1) 
         {
-            if (nome_para_indice.find(aresta.nome()) == nome_para_indice.end())
+            if (obter_indice_vertice(aresta.nome()) == -1)
             {
-                // Criar um novo vértice para esta espécie com valores padrão
                 Vertice novo_vertice(aresta.nome());
                 _adjacencias.push_back(novo_vertice);
-                nome_para_indice[aresta.nome()] = _adjacencias.size() - 1;
             }
         }
     }
 
-    // Atualizar o mapeamento nome_para_indice após adicionar novos vértices
-    for (size_t i = 0; i < _adjacencias.size(); ++i)
-    {
-        nome_para_indice[_adjacencias[i].nome()] = i;
-    }
-
-    // Inserção das arestas
     for (const auto& registro : registros)
     {
         Aresta aresta(registro);
         int origem = obter_indice_vertice(registro.nome());
         if (origem == -1)
-            continue; // Vértice de origem não encontrado
+            continue; 
 
         int destino = obter_indice_vertice(aresta.nome());
         if (aresta.nome() == "sunlight")
@@ -202,61 +185,6 @@ Grafo::Grafo(std::ifstream& arquivo)
     }
 }
 
-Grafo::Grafo(std::vector<Registro> registros)
-{
-    // Filtrar registros válidos
-    std::vector<Registro> registros_validos;
-    for (const auto& reg : registros) {
-        if (reg.is_valido()) {
-            registros_validos.push_back(reg);
-        }
-    }
-
-    // precisamos deixar em ordem alfabetica
-    struct
-    {
-        bool operator()(Registro a, Registro b){return a.nome() < b.nome();}
-    } compara_nome;    
-    std::sort(registros_validos.begin(), registros_validos.end(), compara_nome);
-    // criamos um grafo com os registros ordenados, no momento ele so possui os vertice
-    // sem nenhuma aresta
-    for (auto registro = registros_validos.begin(); registro != registros_validos.end(); registro++)
-    {
-        if (registro == registros_validos.begin())
-            _adjacencias.push_back(Vertice(*registro));
-        else if (_adjacencias.back().nome() != registro->nome())
-            _adjacencias.push_back(Vertice(*registro));
-    }
-    // vamos inserir as arestas
-    for (long unsigned int i = 0; i < registros_validos.size(); i++)
-    {
-        Aresta aresta(registros_validos[i]);
-        int origem;
-        // elemento repetido
-        for (origem = 0; origem < this->tamanho(); origem++)
-            if (_adjacencias[origem].nome() == registros_validos[i].nome())
-                break;
-        // faz fotossintese
-        if (aresta.nome() == "sunlight")
-            this->insere_sunlight(aresta, origem);
-        // aresta existe
-        else if (aresta.peso() != -1)
-        {
-            // para cada alimento, precisamos buscar destino na lista encadeada
-            int destino = this->obter_indice_vertice(aresta.nome());
-            if (destino != -1) { // Adicionado verificação
-                this->insere_aresta(aresta, origem, destino);
-            }
-            // Se destino == -1, a aresta não será inserida
-        }
-    }
-    // Inicializar nome_para_indice
-    for (size_t i = 0; i < _adjacencias.size(); ++i)
-    {
-        nome_para_indice[_adjacencias[i].nome()] = i;
-    }
-}
-
 Grafo& Grafo::operator=(const Grafo& grafo)
 {
     if (this == &grafo) return *this;
@@ -267,11 +195,6 @@ Grafo& Grafo::operator=(const Grafo& grafo)
 void Grafo::insere_sunlight(Aresta aresta, int origem)
 {
     int destino = obter_indice_vertice("sunlight");
-    if (destino == -1)
-    {
-        // Opcional: Tratar erro caso "sunlight" não exista, mas agora deve existir
-        return;
-    }
 
     for (const auto& atual : _adjacencias[origem].arestas())
         if (atual.nome() == aresta.nome())
@@ -281,18 +204,15 @@ void Grafo::insere_sunlight(Aresta aresta, int origem)
     _adjacencias[origem].incrementa_saida();
     _adjacencias[origem].incrementa_grau();
 
-    // Incrementar o grau de entrada e grau total do vértice "sunlight"
     _adjacencias[destino].incrementa_entrada();
     _adjacencias[destino].incrementa_grau();
 }
 
 void Grafo::insere_aresta(Aresta aresta, int origem, int destino)
 {
-    // Verificar se os índices são válidos
     if (origem < 0 || origem >= _adjacencias.size() || destino < 0 || destino >= _adjacencias.size())
         return;
 
-    // Verificar se a aresta já existe
     for (const auto& atual : _adjacencias[origem].arestas())
         if (atual.nome() == aresta.nome())
             return;
@@ -422,7 +342,7 @@ int Grafo::obter_indice_vertice(const std::string& nome_completo)
         if (_adjacencias[i].nome() == nome_completo || _adjacencias[i].especie() == nome_completo)
             return i;
     }
-    return -1; // Caso não encontrado
+    return -1; 
 }
 
 std::pair<std::vector<std::string>, int> Grafo::menor_caminho(const std::string& origem_nome, const std::string& destino_nome)
@@ -431,7 +351,6 @@ std::pair<std::vector<std::string>, int> Grafo::menor_caminho(const std::string&
     int destino = obter_indice_vertice(destino_nome);
 
     if (origem == -1 || destino == -1) {
-        std::cout << "Espécie não encontrada no grafo: " << (origem == -1 ? origem_nome : destino_nome) << std::endl; // Debug message
         return { {}, -1 };
     }
 
@@ -439,14 +358,14 @@ std::pair<std::vector<std::string>, int> Grafo::menor_caminho(const std::string&
     std::vector<int> prev(_adjacencias.size(), -1);
     dist[origem] = 0;
 
-    using pii = std::pair<int, int>; // (distância, índice do vértice)
-    std::priority_queue<pii, std::vector<pii>, std::greater<pii>> pq;
-    pq.push({0, origem});
+    std::vector<std::pair<int, int>> pq; 
+    pq.push_back({0, origem});
 
     while (!pq.empty()) {
-        int u = pq.top().second;
-        int d = pq.top().first;
-        pq.pop();
+        auto min_it = std::min_element(pq.begin(), pq.end());
+        int u = min_it->second;
+        int d = min_it->first;
+        pq.erase(min_it);
 
         if (u == destino) break; // Otimização: pare se alcançar o destino
 
@@ -462,17 +381,15 @@ std::pair<std::vector<std::string>, int> Grafo::menor_caminho(const std::string&
             if (dist[u] + peso < dist[v]) {
                 dist[v] = dist[u] + peso;
                 prev[v] = u;
-                pq.push({dist[v], v});
+                pq.push_back({dist[v], v});
             }
         }
     }
 
     if (dist[destino] == INT_MAX) {
-        std::cout << "Não há caminho entre as espécies.\n";
         return { {}, -1 };
     }
 
-    // Reconstruir o caminho
     std::vector<std::string> caminho;
     for (int at = destino; at != -1; at = prev[at]) {
         caminho.push_back(_adjacencias[at].nome());
@@ -482,22 +399,18 @@ std::pair<std::vector<std::string>, int> Grafo::menor_caminho(const std::string&
     return { caminho, dist[destino] };
 }
 
-void Grafo::DFS(int v, std::vector<bool>& visitado, std::stack<int>& pilha)
+void Grafo::DFS(int v, std::vector<bool>& visitado, std::vector<int>& pilha)
 {
     visitado[v] = true;
     for (const auto& aresta : _adjacencias[v].arestas())
     {
-        auto it = nome_para_indice.find(aresta.nome());
-        if (it != nome_para_indice.end())
+        int destino = obter_indice_vertice(aresta.nome());
+        if (destino != -1 && !visitado[destino])
         {
-            int destino = it->second;
-            if (!visitado[destino])
-            {
-                DFS(destino, visitado, pilha);
-            }
+            DFS(destino, visitado, pilha);
         }
     }
-    pilha.push(v);
+    pilha.push_back(v); 
 }
 
 void Grafo::DFSUtil(int v, std::vector<bool>& visitado)
@@ -505,14 +418,10 @@ void Grafo::DFSUtil(int v, std::vector<bool>& visitado)
     visitado[v] = true;
     for (const auto& aresta : _adjacencias[v].arestas())
     {
-        auto it = nome_para_indice.find(aresta.nome());
-        if (it != nome_para_indice.end())
+        int destino = obter_indice_vertice(aresta.nome());
+        if (destino != -1 && !visitado[destino])
         {
-            int destino = it->second;
-            if (!visitado[destino])
-            {
-                DFSUtil(destino, visitado);
-            }
+            DFSUtil(destino, visitado);
         }
     }
 }
@@ -525,22 +434,16 @@ Grafo Grafo::obter_transposto()
     grafo_transposto._adjacencias = _adjacencias;
     for (auto& vertice : grafo_transposto._adjacencias)
     {
-        vertice.limpa_arestas(); // Limpa as arestas
+        vertice.limpa_arestas(); 
     }
 
-    // Copiar o mapeamento
-    grafo_transposto.nome_para_indice = nome_para_indice;
-
-    // Adicionar as arestas invertidas
     for (size_t v = 0; v < _adjacencias.size(); ++v)
     {
         for (const auto& aresta : _adjacencias[v].arestas())
         {
-            auto it = nome_para_indice.find(aresta.nome());
-            if (it != nome_para_indice.end())
+            int destino = obter_indice_vertice(aresta.nome());
+            if (destino != -1)
             {
-                int destino = it->second;
-                // Inverter a aresta
                 Aresta aresta_invertida(_adjacencias[v].nome(), aresta.peso());
                 grafo_transposto._adjacencias[destino].adiciona_aresta(aresta_invertida);
             }
@@ -559,9 +462,8 @@ int Grafo::conta_componentes_fortemente_conexos()
     }
 
     std::vector<bool> visitado(n, false);
-    std::stack<int> pilha;
+    std::vector<int> pilha; 
 
-    // Passo 1: Preencher a pilha com a ordem de término dos vértices
     for (int i = 0; i < n; ++i)
     {
         if (!visitado[i])
@@ -570,35 +472,32 @@ int Grafo::conta_componentes_fortemente_conexos()
         }
     }
 
-    // Passo 2: Obter o grafo transposto
     Grafo grafo_transposto = obter_transposto();
 
-    // Passo 3: Realizar DFS no grafo transposto na ordem da pilha
     std::fill(visitado.begin(), visitado.end(), false);
-    int num_cfc = 0;
+    int n_cfc = 0;
 
     while (!pilha.empty())
     {
-        int v = pilha.top();
-        pilha.pop();
+        int v = pilha.back(); 
+        pilha.pop_back(); 
 
         if (!visitado[v])
         {
             grafo_transposto.DFSUtil(v, visitado);
-            ++num_cfc;
+            ++n_cfc;
         }
     }
 
-    // Verificar se o grafo é fortemente conexo
-    if (num_cfc == 1)
+    if (n_cfc == 1)
     {
         std::cout << "O grafo é fortemente conexo.\n";
     }
     else
     {
         std::cout << "O grafo não é fortemente conexo.\n";
-        std::cout << "Número de componentes fortemente conexos: " << num_cfc << "\n";
+        std::cout << "Número de componentes fortemente conexos: " << n_cfc << "\n";
     }
 
-    return num_cfc;
+    return n_cfc;
 }
