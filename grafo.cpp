@@ -1,4 +1,5 @@
 // Pedro Fuziwara Filho - 13676840
+// Murilo Vinicius da Silva - 14600030
 
 #include "grafo.hpp"
 #include <climits>
@@ -301,8 +302,7 @@ void busca_ciclos(Grafo& grafo, int v, int start, std::vector<bool>& visitado, i
     for (auto& aresta : grafo.adjacencias()[v].arestas())
     {
         int destino = grafo.obter_indice_vertice(aresta.nome());
-        if (destino == -1) { // Corrigido para verificar se destino é inválido
-            // Registro não encontrado, pular esta aresta
+        if (destino == -1) { 
             continue;
         }
         if (!visitado[destino])
@@ -367,16 +367,16 @@ std::pair<std::vector<std::string>, int> Grafo::menor_caminho(const std::string&
         int d = min_it->first;
         pq.erase(min_it);
 
-        if (u == destino) break; // Otimização: pare se alcançar o destino
+        if (u == destino) break; 
 
-        if (d > dist[u]) continue; // Já encontramos um caminho melhor
+        if (d > dist[u]) continue; 
 
         for (const auto& aresta : _adjacencias[u].arestas()) {
             int v = obter_indice_vertice(aresta.nome());
-            if (v == -1) continue; // Vértice não encontrado
+            if (v == -1) continue; 
 
-            int peso = aresta.peso(); // População do predador
-            if (peso == -1) continue; // Ignorar arestas inválidas
+            int peso = aresta.peso(); 
+            if (peso == -1) continue; 
 
             if (dist[u] + peso < dist[v]) {
                 dist[v] = dist[u] + peso;
@@ -399,7 +399,7 @@ std::pair<std::vector<std::string>, int> Grafo::menor_caminho(const std::string&
     return { caminho, dist[destino] };
 }
 
-void Grafo::DFS(int v, std::vector<bool>& visitado, std::vector<int>& pilha)
+void Grafo::DFS(int v, std::vector<bool>& visitado, std::vector<int>& pilha, bool push_to_stack)
 {
     visitado[v] = true;
     for (const auto& aresta : _adjacencias[v].arestas())
@@ -407,22 +407,12 @@ void Grafo::DFS(int v, std::vector<bool>& visitado, std::vector<int>& pilha)
         int destino = obter_indice_vertice(aresta.nome());
         if (destino != -1 && !visitado[destino])
         {
-            DFS(destino, visitado, pilha);
+            DFS(destino, visitado, pilha, push_to_stack);
         }
     }
-    pilha.push_back(v); 
-}
-
-void Grafo::DFSUtil(int v, std::vector<bool>& visitado)
-{
-    visitado[v] = true;
-    for (const auto& aresta : _adjacencias[v].arestas())
+    if (push_to_stack)
     {
-        int destino = obter_indice_vertice(aresta.nome());
-        if (destino != -1 && !visitado[destino])
-        {
-            DFSUtil(destino, visitado);
-        }
+        pilha.push_back(v); 
     }
 }
 
@@ -430,7 +420,6 @@ Grafo Grafo::obter_transposto()
 {
     Grafo grafo_transposto;
 
-    // Copiar vértices
     grafo_transposto._adjacencias = _adjacencias;
     for (auto& vertice : grafo_transposto._adjacencias)
     {
@@ -468,7 +457,7 @@ int Grafo::conta_componentes_fortemente_conexos()
     {
         if (!visitado[i])
         {
-            DFS(i, visitado, pilha);
+            DFS(i, visitado, pilha, true);
         }
     }
 
@@ -484,7 +473,7 @@ int Grafo::conta_componentes_fortemente_conexos()
 
         if (!visitado[v])
         {
-            grafo_transposto.DFSUtil(v, visitado);
+            grafo_transposto.DFS(v, visitado, pilha, false);
             ++n_cfc;
         }
     }
@@ -495,8 +484,7 @@ int Grafo::conta_componentes_fortemente_conexos()
     }
     else
     {
-        std::cout << "O grafo não é fortemente conexo.\n";
-        std::cout << "Número de componentes fortemente conexos: " << n_cfc << "\n";
+        std::cout << "Não, o grafo não é fortemente conexo e possui " << n_cfc << " componentes.\n";
     }
 
     return n_cfc;

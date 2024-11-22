@@ -1,4 +1,5 @@
 // Pedro Fuziwara Filho - 13676840
+// Murilo Vinicius da Silva - 14600030
 
 #include "registro.hpp"
 #include "grafo.hpp"
@@ -32,13 +33,13 @@ int main()
     {
         case 10:
         {
-            grafo = Grafo(arquivo); // Uses Grafo(std::ifstream& arquivo)
-            grafo.printa_grafo(); // Certifique-se de que este método não está sendo chamado no case 13
+            grafo = Grafo(arquivo); 
+            grafo.printa_grafo();
             break;
         }
         case 11:
         {
-            grafo = Grafo(arquivo); // Uses Grafo(std::ifstream& arquivo)
+            grafo = Grafo(arquivo); 
             int numero_presas;
             std::cin >> numero_presas;
             for (int i = 0; i < numero_presas; i++)
@@ -54,7 +55,7 @@ int main()
         case 12:
         {
             // lê registros e constrói o grafo
-            grafo = Grafo(arquivo); // Uses Grafo(std::ifstream& arquivo)
+            grafo = Grafo(arquivo); 
             // chama o método para contar ciclos simples
             int num_ciclos = grafo.conta_ciclos_simples();
             std::cout << "Quantidade de ciclos: " << num_ciclos << "\n";
@@ -62,37 +63,35 @@ int main()
         }
         case 13:
         {
-            grafo = Grafo(arquivo); // Uses Grafo(std::ifstream& arquivo)
+            grafo = Grafo(arquivo); 
 
-            // Verifica se o grafo é fortemente conexo e conta o número de CFCs
             grafo.conta_componentes_fortemente_conexos();
 
             break;
         }
         case 14:
         {
-            grafo = Grafo(arquivo); // Uses Grafo(std::ifstream& arquivo)
+            grafo = Grafo(arquivo); 
 
             int num_pares;
             std::cin >> num_pares;
 
             for (int i = 0; i < num_pares; i++) {
-                std::string especie_origem, especie_destino;
+                std::string predador, alimento;
 
-                // Ler as espécies entre aspas
                 std::cin.ignore(); // Ignora o espaço antes da primeira aspas
-                std::getline(std::cin, especie_origem, '"'); // Descarta até a primeira aspas
-                std::getline(std::cin, especie_origem, '"');
+                std::getline(std::cin, predador, '"'); // Descarta até a primeira aspas
+                std::getline(std::cin, predador, '"');
                 std::cin.ignore(); // Ignora o espaço antes da segunda aspas
-                std::getline(std::cin, especie_destino, '"'); // Descarta até a próxima aspas
-                std::getline(std::cin, especie_destino, '"');
+                std::getline(std::cin, alimento, '"'); // Descarta até a próxima aspas
+                std::getline(std::cin, alimento, '"');
 
-                auto resultado = grafo.menor_caminho(especie_origem, especie_destino);
+                auto resultado = grafo.menor_caminho(predador, alimento);
 
                 if (resultado.second != -1) {
-                    std::cout << especie_origem << " " << especie_destino << ": " << resultado.second << "\n";
+                    std::cout << predador << " " << alimento << ": " << resultado.second << "\n";
                 } else {
-                    std::cout << especie_origem << " " << especie_destino << ": CAMINHO INEXISTENTE\n";
+                    std::cout << predador << " " << alimento << ": CAMINHO INEXISTENTE\n";
                 }
             }
             break;

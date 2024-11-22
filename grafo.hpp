@@ -21,12 +21,12 @@ public:
     {aresta._peso = 0;}
     Aresta(const Aresta& aresta) : _peso(aresta._peso), _nome(aresta._nome) {}
     Aresta() : _peso(0), _nome(""){}
-    Aresta(std::string nome, int peso); // Novo construtor
+    Aresta(std::string nome, int peso); 
     // operadores
     Aresta& operator=(const Aresta& aresta);
     // metodos para acessar parametros
-    std::string nome() const { return _nome; } // Marked as const
-    int peso() const { return _peso; } // Marked as const
+    std::string nome() const { return _nome; } 
+    int peso() const { return _peso; } 
     void printa();
 }; 
 
@@ -75,8 +75,8 @@ public:
     void printa_vertice();
     void ordena_arestas();
     bool caca(std::string presa);
-    void limpa_arestas();                       // Novo método
-    void adiciona_aresta(const Aresta& aresta); // Novo método
+    void limpa_arestas();                       
+    void adiciona_aresta(const Aresta& aresta); 
 };
 
 class Grafo
@@ -88,7 +88,7 @@ public:
     Grafo(const Grafo& grafo) : _adjacencias(grafo._adjacencias){}
     Grafo(Grafo&& grafo) noexcept : _adjacencias(std::move(grafo._adjacencias)){}
     Grafo(std::ifstream& arquivo);
-    // Grafo(std::vector<Registro> registros); // Commented out
+    // Grafo(std::vector<Registro> registros); 
     Grafo& operator=(const Grafo& grafo);
     // acessa parametros do grafo
     Vertice vertice(long unsigned int posicao){return _adjacencias[posicao];};
@@ -106,9 +106,9 @@ public:
     std::pair<std::vector<std::string>, int> menor_caminho(const std::string& origem_nome, const std::string& destino_nome);
     int conta_componentes_fortemente_conexos(); // Nova funcionalidade
 private:
-    void DFS(int v, std::vector<bool>& visitado, std::vector<int>& pilha); // Updated method signature
-    void DFSUtil(int v, std::vector<bool>& visitado);                      // Unchanged
-    Grafo obter_transposto();                                             // Unchanged
+    void DFS(int v, std::vector<bool>& visitado, std::vector<int>& pilha, bool push_to_stack); 
+    void DFSUtil(int v, std::vector<bool>& visitado);                      
+    Grafo obter_transposto();                                             
 };
 
 #endif

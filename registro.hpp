@@ -22,17 +22,17 @@ class Registro
     std::string _alimento;   // campo 9
     char _removido;          // campo 10
     int _encadenamento;      // campo 11
-    bool _valido;            // Novo campo para indicar se o registro é válido
+    bool _valido;            
 public:
     Registro(std::ifstream& arquivo, int offset);
-    std::string nome() const { return _nome; } // Marked as const
-    std::string especie() const { return _especie; } // Marked as const
-    std::string dieta() const { return _dieta; } // Marked as const
-    std::string tipo() const { return _tipo; } // Marked as const
-    std::string habitat() const { return _habitat; } // Marked as const
-    std::string alimento() const { return _alimento; } // Marked as const
-    int populacao() const { return _populacao; } // Marked as const
-    bool is_valido() const { return _valido; } // Marked as const
+    std::string nome() const { return _nome; } 
+    std::string especie() const { return _especie; } 
+    std::string dieta() const { return _dieta; } 
+    std::string tipo() const { return _tipo; } 
+    std::string habitat() const { return _habitat; } 
+    std::string alimento() const { return _alimento; } 
+    int populacao() const { return _populacao; } 
+    bool is_valido() const { return _valido; } 
     void printa_formatado();
 };
 
