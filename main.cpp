@@ -79,16 +79,20 @@ int main()
             for (int i = 0; i < num_pares; i++) {
                 std::string predador, alimento;
 
-                std::cin.ignore(); // Ignora o espaço antes da primeira aspas
-                std::getline(std::cin, predador, '"'); // Descarta até a primeira aspas
+                // ignora espaços vazios e descarta aspas
+                std::cin.ignore();
+                std::getline(std::cin, predador, '"'); 
                 std::getline(std::cin, predador, '"');
-                std::cin.ignore(); // Ignora o espaço antes da segunda aspas
-                std::getline(std::cin, alimento, '"'); // Descarta até a próxima aspas
+                std::cin.ignore();
+                std::getline(std::cin, alimento, '"');
                 std::getline(std::cin, alimento, '"');
 
+                // chama o método menor_caminho para encontrar o menor caminho entre predador e alimento
                 auto resultado = grafo.menor_caminho(predador, alimento);
 
+                // verifica se o caminho existe
                 if (resultado.second != -1) {
+                    // imprime o predador, alimento e a distância do menor caminho
                     std::cout << predador << " " << alimento << ": " << resultado.second << "\n";
                 } else {
                     std::cout << predador << " " << alimento << ": CAMINHO INEXISTENTE\n";

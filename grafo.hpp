@@ -1,4 +1,5 @@
 // Pedro Fuziwara Filho - 13676840
+// Murilo Vinicius da Silva - 14600030
 
 #ifndef GRAFO
 #define GRAFO
@@ -88,7 +89,6 @@ public:
     Grafo(const Grafo& grafo) : _adjacencias(grafo._adjacencias){}
     Grafo(Grafo&& grafo) noexcept : _adjacencias(std::move(grafo._adjacencias)){}
     Grafo(std::ifstream& arquivo);
-    // Grafo(std::vector<Registro> registros); 
     Grafo& operator=(const Grafo& grafo);
     // acessa parametros do grafo
     Vertice vertice(long unsigned int posicao){return _adjacencias[posicao];};
@@ -106,9 +106,8 @@ public:
     std::pair<std::vector<std::string>, int> menor_caminho(const std::string& origem_nome, const std::string& destino_nome);
     int conta_componentes_fortemente_conexos(); // Nova funcionalidade
 private:
-    void DFS(int v, std::vector<bool>& visitado, std::vector<int>& pilha, bool push_to_stack); 
-    void DFSUtil(int v, std::vector<bool>& visitado);                      
-    Grafo obter_transposto();                                             
+    void DFS(int v, std::vector<bool>& visitado, std::vector<int>& pilha, bool push_to_stack);                       
+    Grafo gerar_transposto();                                             
 };
 
 #endif

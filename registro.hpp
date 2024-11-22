@@ -1,4 +1,5 @@
 // Pedro Fuziwara Filho - 13676840
+// Murilo Vinicius da Silva - 14600030
 
 #ifndef REGISTRO
 #define REGISTRO
@@ -22,7 +23,6 @@ class Registro
     std::string _alimento;   // campo 9
     char _removido;          // campo 10
     int _encadenamento;      // campo 11
-    bool _valido;            
 public:
     Registro(std::ifstream& arquivo, int offset);
     std::string nome() const { return _nome; } 
@@ -32,7 +32,6 @@ public:
     std::string habitat() const { return _habitat; } 
     std::string alimento() const { return _alimento; } 
     int populacao() const { return _populacao; } 
-    bool is_valido() const { return _valido; } 
     void printa_formatado();
 };
 
